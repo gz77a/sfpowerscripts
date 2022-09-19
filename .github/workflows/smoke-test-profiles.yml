@@ -1,0 +1,51 @@
+# Unique name for this workflow
+name: Validate PR and Run Profile Tests
+
+# Definition when the workflow should run
+on:
+    workflow_dispatch:
+    pull_request:
+        types: [opened, synchronize, reopened]
+        branches:
+            - develop
+            - main
+        paths: 
+            - 'packages/sfprofiles/src/**'
+
+jobs:
+  SmokeTest:
+      name: Smoke Test PR
+      runs-on: 'ubuntu-latest'
+      
+      steps:
+        - uses: actions/checkout@v3
+        - name: Setup Node.js environment
+          uses: actions/setup-node@v3.3.0
+          with:
+            node-version: '14'
+            registry-url: 'https://registry.npmjs.org'
+
+        - name: Install SFDX
+          run: npm install -g  sfdx-cli
+          
+        - name: Run NPM Install
+          run: npm install
+          
+        - name: Install sfpowerkit
+          run: echo y | sfdx plugins:link
+          
+        - name: Store Auth File
+          run: echo ${{ secrets.DEVHUB_SFDX_AUTH_URL }} > ./authfile
+        
+        - name: Authenitcate to DevHub
+          run: sfdx auth:sfdxurl:store -f authfile -a HubOrg
+          
+        - name: Scaffold SFDX Project
+          run: sfdx force:project:create --projectname testProject --template standard
+
+        - name: Smoke Test Profile Commands
+          run: |
+              set -euxo pipefail
+              sfdx sfpowerkit:source:profile:retrieve -u HubOrg
+              sfdx sfpowerkit:source:profile:reconcile -u HubOrg
+          working-directory: testProject
