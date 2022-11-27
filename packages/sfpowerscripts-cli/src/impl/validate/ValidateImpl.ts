@@ -49,6 +49,8 @@ import { PreDeployHook } from '../deploy/PreDeployHook';
 import GroupConsoleLogs from '../../ui/GroupConsoleLogs';
 import ReleaseDefinitionGenerator from '../release/ReleaseDefinitionGenerator';
 import ReleaseDefinitionSchema from '../release/ReleaseDefinitionSchema';
+import TransitiveDependencyResolver from '@dxatscale/sfpowerscripts.core/lib/dependency/TransitiveDependencyResolver';
+import { Connection } from '@salesforce/core';
 
 export enum ValidateAgainst {
     PROVIDED_ORG,
@@ -235,9 +237,10 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 
     private async installPackageDependencies(scratchOrgAsSFPOrg: SFPOrg, sfpPackage: SfpPackage) {
         //Resolve external package dependencies
+        let projectConfig = await this.resolvePackageDependencies(ProjectConfig.getSFDXProjectConfig(null), this.props.hubOrg.getConnection())
         let externalPackageResolver = new ExternalPackage2DependencyResolver(
             this.props.hubOrg.getConnection(),
-            ProjectConfig.getSFDXProjectConfig(null),
+            projectConfig,
             this.props.keys
         );
         let externalPackage2s = await externalPackageResolver.fetchExternalPackage2Dependencies(sfpPackage.packageName);
@@ -710,5 +713,15 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
                 )
             );
         }
+    }
+
+    private resolvePackageDependencies(projectConfig: any, conn: Connection){
+        let isDependencyResolverEnabled = projectConfig?.plugins?.sfpowerscripts?.enableTransitiveDependencyResolver
+        if(isDependencyResolverEnabled){
+            const transitiveDependencyResolver = new TransitiveDependencyResolver(projectConfig, conn)
+            return transitiveDependencyResolver.exec()
+        }else{
+            return projectConfig
+        } 
     }
 }

@@ -24,6 +24,8 @@ import ExternalPackage2DependencyResolver from '@dxatscale/sfpowerscripts.core/l
 import ExternalDependencyDisplayer from '@dxatscale/sfpowerscripts.core/lib/display/ExternalDependencyDisplayer';
 import ReleaseDefinitionGenerator from '../release/ReleaseDefinitionGenerator';
 import ReleaseDefinitionSchema from '../release/ReleaseDefinitionSchema';
+import TransitiveDependencyResolver from '@dxatscale/sfpowerscripts.core/lib/dependency/TransitiveDependencyResolver';
+import { Connection } from '@salesforce/core';
 
 const Table = require('cli-table');
 
@@ -62,6 +64,9 @@ export default class PrepareImpl {
 
         let restrictedPackages = null;
         let projectConfig = ProjectConfig.getSFDXProjectConfig(null);
+
+        //Fix transitive dependency gap
+        projectConfig = await this.resolvePackageDependencies(projectConfig, this.hubOrg.getConnection())
 
         if (this.pool.releaseConfigFile) {
             restrictedPackages = await getArtifactsByGeneratingReleaseDefinitionFromConfig(this.pool.releaseConfigFile);
@@ -267,5 +272,15 @@ export default class PrepareImpl {
             if (restrictedPackages) return restrictedPackages.includes(pkg.package);
             else return true;
         }
+    }
+
+    private resolvePackageDependencies(projectConfig: any, conn: Connection){
+        let isDependencyResolverEnabled = projectConfig?.plugins?.sfpowerscripts?.enableTransitiveDependencyResolver
+        if(isDependencyResolverEnabled){
+            const transitiveDependencyResolver = new TransitiveDependencyResolver(projectConfig, conn)
+            return transitiveDependencyResolver.exec()
+        }else{
+            return projectConfig
+        } 
     }
 }

@@ -10,23 +10,20 @@ const Table = require('cli-table');
 export default class TransitiveDependencyResolver {
 
   private dependencyMap;
-  private updatedprojectConfig: any
 
   constructor(
-    private projectConfig: ProjectConfig,
+    private projectConfig,
     private conn: Connection,
     private logger?: Logger,
     ){}
   public async exec(): Promise<ProjectConfig>{
     SFPLogger.log('Validating Project Dependencies...', LoggerLevel.INFO);
 
-    this.updatedprojectConfig = this.projectConfig
-
     this.dependencyMap = await this.getAllPackageDependencyMap(this.projectConfig);
 
     await this.validateDependency(this.dependencyMap, this.projectConfig)
 
-    return this.updatedprojectConfig
+    return this.projectConfig
      
   }
 
@@ -107,7 +104,7 @@ export default class TransitiveDependencyResolver {
   }
 
   private async UpdateProjectConfig(packageName: string, fixedDependencies: any){
-    this.updatedprojectConfig.packageDirectories.map(pkg => { if(pkg.package == packageName){return Object.assign(pkg, {dependencies: fixedDependencies})}})
+    this.projectConfig.packageDirectories.map(pkg => { if(pkg.package == packageName){return Object.assign(pkg, {dependencies: fixedDependencies})}})
   }
   
 
