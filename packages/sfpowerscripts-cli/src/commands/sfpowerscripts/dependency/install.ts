@@ -2,7 +2,7 @@ import { ConsoleLogger } from '@dxatscale/sfp-logger';
 import SFPOrg from '@dxatscale/sfpowerscripts.core/lib/org/SFPOrg';
 import { flags } from '@salesforce/command';
 import { Messages } from '@salesforce/core';
-import SfpowerscriptsCommand from '../../../../SfpowerscriptsCommand';
+import SfpowerscriptsCommand from '../../../SfpowerscriptsCommand';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@dxatscale/sfpowerscripts', 'project_dependencies_install');
