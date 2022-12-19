@@ -117,7 +117,7 @@ describe('FHT Analyzer', () => {
                 return '';
             },
         };
-        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,new VoidLogger());
+        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,set,new VoidLogger());
         expect(sfpPackage['isFHTFieldFound']).toBe(true);
         expect(sfpPackage['fhtFields']).toBeDefined();
         let fhtFields = sfpPackage['fhtFields'];
@@ -194,7 +194,7 @@ describe('FHT Analyzer', () => {
                 return '';
             },
         };
-        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,new VoidLogger());
+        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,set,new VoidLogger());
         expect(sfpPackage['isFHTFieldFound']).toBe(true);
         expect(sfpPackage['fhtFields']).toBeDefined();
         let fhtFields = sfpPackage['fhtFields'];
@@ -273,7 +273,7 @@ describe('FHT Analyzer', () => {
                 return '';
             },
         };
-        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,new VoidLogger());
+        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,set,new VoidLogger());
         expect(sfpPackage['isFHTFieldFound']).toBe(true);
         expect(sfpPackage['fhtFields']).toBeDefined();
         let fhtFields = sfpPackage['fhtFields'];
@@ -352,7 +352,7 @@ describe('FHT Analyzer', () => {
                 return '';
             },
         };
-        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,new VoidLogger());
+        sfpPackage = await fhtAnalyzer.analyze(sfpPackage,set,new VoidLogger());
         expect(sfpPackage['isFHTFieldFound']).toBe(true);
         expect(sfpPackage['fhtFields']).toBeDefined();
         let fhtFields = sfpPackage['fhtFields'];
