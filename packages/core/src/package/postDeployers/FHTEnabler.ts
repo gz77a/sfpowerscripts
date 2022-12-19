@@ -3,35 +3,31 @@ import { ComponentSet, registry } from '@salesforce/source-deploy-retrieve';
 import * as fs from 'fs-extra';
 import QueryHelper from '../../queryHelper/QueryHelper';
 import SfpPackage from '../SfpPackage';
-import path from 'path';
 import { Connection } from '@salesforce/core';
 import { PostDeployer } from './PostDeployer';
 import { Schema } from 'jsforce';
-
 const { XMLBuilder } = require('fast-xml-parser');
 
 const QUERY_BODY =
     'SELECT QualifiedApiName, IsFieldHistoryTracked, EntityDefinitionId FROM FieldDefinition WHERE IsFieldHistoryTracked = false AND DurableId IN: ';
 
 export default class FHTEnabler implements PostDeployer {
-
-    public async isEnabled(sfpPackage: SfpPackage, conn: Connection<Schema>, logger: Logger):Promise<boolean> {
-        if (sfpPackage['isFHTFieldFound']) {
+    public async isEnabled(sfpPackage: SfpPackage, conn: Connection<Schema>, logger: Logger): Promise<boolean> {
+        if (
+            sfpPackage['isFHTFieldFound'] &&
+            (sfpPackage.packageDescriptor.enableFHT == undefined || sfpPackage.packageDescriptor.enableFHT == true)
+        ) {
             return true;
         }
     }
 
     public async gatherPostDeploymentComponents(
         sfpPackage: SfpPackage,
-        componentSet:ComponentSet,
+        componentSet: ComponentSet,
         conn: Connection,
         logger: Logger
     ): Promise<ComponentSet> {
-        
-
-      
         let sourceComponents = componentSet.getSourceComponents().toArray();
-
 
         //extract the durableId list and object list for the query from the fht Json
         let durableIdList = [];
@@ -44,7 +40,11 @@ export default class FHTEnabler implements PostDeployer {
         let query = QUERY_BODY + durableIdList;
 
         try {
-            SFPLogger.log(`Gathering fields to be enabled with field history tracking in trget org....`, LoggerLevel.INFO, logger);
+            SFPLogger.log(
+                `Gathering fields to be enabled with field history tracking in trget org....`,
+                LoggerLevel.INFO,
+                logger
+            );
             //Fetch the custom fields in the fhtJson from the target org
             let fhtFieldsInOrg = await QueryHelper.query<{
                 QualifiedApiName: string;
@@ -103,10 +103,9 @@ export default class FHTEnabler implements PostDeployer {
             return componentSet;
         }
     }
-     
-    public getName():string
-    {
-        return "Field History Tracking Enabler"
+
+    public getName(): string {
+        return 'Field History Tracking Enabler';
     }
 }
 
