@@ -2,7 +2,6 @@ import { jest, expect } from '@jest/globals';
 import FHTAnalyser from '../../../src/package/analyser/FHTAnalyzer';
 import SfpPackage, { PackageType } from '../../../src/package/SfpPackage';
 const fs = require('fs-extra');
-import path from 'path';
 import { ComponentSet, SourceComponent, registry, VirtualDirectory } from '@salesforce/source-deploy-retrieve';
 import { VoidLogger } from '@dxatscale/sfp-logger';
 
