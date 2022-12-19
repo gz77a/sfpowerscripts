@@ -23,6 +23,7 @@ import lodash = require('lodash');
 import { EOL } from 'os';
 import PackageVersionUpdater from './version/PackageVersionUpdater';
 import { AnalyzerRegistry } from './analyser/AnalyzerRegistry';
+import { ComponentSet } from '@salesforce/source-deploy-retrieve';
 
 export default class SfpPackageBuilder {
     public static async buildPackageFromProjectDirectory(
@@ -122,10 +123,15 @@ export default class SfpPackageBuilder {
 
             sfpPackage.isTriggerAllTests = this.isAllTestsToBeTriggered(sfpPackage, logger);
 
+            //Load component Set
+            let componentSet = ComponentSet.fromSource(
+                path.join(sfpPackage.workingDirectory, sfpPackage.projectDirectory, sfpPackage.packageDirectory)
+            );
+
             //Run through all analyzers
             let analyzers = AnalyzerRegistry.getAnalyzers();
             for (const analyzer of analyzers) {
-                if (analyzer.isEnabled(sfpPackage,logger)) sfpPackage = await analyzer.analyze(sfpPackage,logger);
+                if (analyzer.isEnabled(sfpPackage, logger)) sfpPackage = await analyzer.analyze(sfpPackage,componentSet, logger);
             }
 
             //Introspect Diff Package Created

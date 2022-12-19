@@ -23,13 +23,13 @@ export default class FHTEnabler implements PostDeployer {
 
     public async gatherPostDeploymentComponents(
         sfpPackage: SfpPackage,
+        componentSet:ComponentSet,
         conn: Connection,
         logger: Logger
     ): Promise<ComponentSet> {
         
 
-        //Generate component sets
-        let componentSet = ComponentSet.fromSource(path.join(sfpPackage.workingDirectory, sfpPackage.packageDirectory));
+      
         let sourceComponents = componentSet.getSourceComponents().toArray();
 
 

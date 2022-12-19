@@ -18,6 +18,7 @@ import DeploySourceToOrgImpl, { DeploymentOptions } from '../../deployers/Deploy
 import getFormattedTime from '../../utils/GetFormattedTime';
 import { TestLevel } from '../../apextest/TestOptions';
 import { PostDeployersRegistry } from '../postDeployers/PostDeployersRegistry';
+import { ComponentSet } from '@salesforce/source-deploy-retrieve';
 
 export class SfpPackageInstallationOptions {
     installationkey?: string;
@@ -259,12 +260,16 @@ export abstract class InstallPackage {
     private async executePostDeployers() {
         SFPLogger.log(`Executing Post Deployers`, LoggerLevel.INFO, this.logger);
 
+        //Gather componentSet
+        let componentSet = ComponentSet.fromSource(path.join(this.sfpPackage.workingDirectory, this.sfpPackage.packageDirectory));
+
         for (const postDeployer of PostDeployersRegistry.getPostDeployers()) {
             try {
                 SFPLogger.log(`Post Deployer ${postDeployer.getName()}`, LoggerLevel.INFO, this.logger);
                 if (await postDeployer.isEnabled(this.sfpPackage, this.connection, this.logger)) {
-                    let componentSet = await postDeployer.gatherPostDeploymentComponents(
+                     let modifiedComponentSet = await postDeployer.gatherPostDeploymentComponents(
                         this.sfpPackage,
+                        componentSet,
                         this.connection,
                         this.logger
                     );
@@ -292,7 +297,7 @@ export abstract class InstallPackage {
                     let deploySourceToOrgImpl: DeploymentExecutor = new DeploySourceToOrgImpl(
                         this.sfpOrg,
                         this.sfpPackage.sourceDir,
-                        componentSet,
+                        modifiedComponentSet,
                         deploymentOptions,
                         this.logger
                     );

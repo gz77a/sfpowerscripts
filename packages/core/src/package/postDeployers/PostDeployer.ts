@@ -5,7 +5,7 @@ import SfpPackage from "../SfpPackage";
 
 export interface PostDeployer
 {
-  gatherPostDeploymentComponents(sfpPackage: SfpPackage, conn: Connection, logger: Logger): Promise<ComponentSet>;
+  gatherPostDeploymentComponents(sfpPackage: SfpPackage, componentSet:ComponentSet, conn: Connection, logger: Logger): Promise<ComponentSet>;
   isEnabled(sfpPackage:SfpPackage, conn:Connection,logger:Logger):Promise<boolean>;
   getName():string
 }
